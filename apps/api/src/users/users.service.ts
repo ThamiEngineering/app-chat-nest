@@ -15,11 +15,16 @@ export class UsersService {
   }
 
   findAll() {
-    return `This action returns all user`;
+    return this.prisma.user.findMany({
+      omit: { password: true },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOne(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      omit: { password: true },
+    });
   }
 
   findOneByEmail(email: string) {
@@ -28,11 +33,15 @@ export class UsersService {
     });
   }
 
-  update(id: number, _updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+      omit: { password: true },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    return this.prisma.user.delete({ where: { id } });
   }
 }

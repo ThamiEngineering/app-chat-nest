@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -20,4 +20,15 @@ export class CreateUserDto {
     },
   )
   password: string;
+
+  @ApiPropertyOptional({ description: 'Display name', example: 'john_doe' })
+  @IsOptional()
+  @IsString()
+  username?: string;
+
+  @ApiPropertyOptional({ description: 'Custom color (hex)', example: '#ff5733' })
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, { message: 'color_custom must be a valid hex color' })
+  color_custom?: string;
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
@@ -31,9 +32,14 @@ export default function ChatPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Chat</CardTitle>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            Déconnexion
-          </Button>
+          <div className="flex gap-2">
+            <Link href="/profil">
+              <Button variant="outline" size="sm">Profil</Button>
+            </Link>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              Déconnexion
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">Bienvenue sur le chat 👋</p>
