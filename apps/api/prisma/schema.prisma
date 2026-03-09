@@ -9,11 +9,60 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  username     String?  @unique
+  id           String       @id @default(uuid())
+  email        String       @unique
+  username     String?      @unique
   password     String
   color_custom String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  rooms        RoomMember[]
+  messages     Message[]
+  reactions    Reaction[]
+}
+
+model Room {
+  id        String       @id @default(uuid())
+  name      String
+  isGeneral Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  members   RoomMember[]
+  messages  Message[]
+}
+
+model RoomMember {
+  id               String   @id @default(uuid())
+  roomId           String
+  userId           String
+  hasHistoryAccess Boolean  @default(true)
+  joinedAt         DateTime @default(now())
+  room             Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+}
+
+model Message {
+  id        String     @id @default(uuid())
+  content   String
+  roomId    String
+  authorId  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  room      Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reactions Reaction[]
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  emoji     String
+  messageId String
+  userId    String
+  createdAt DateTime @default(now())
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
 }
