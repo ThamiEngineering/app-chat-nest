@@ -1,3 +1,4 @@
+import { UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -10,13 +11,17 @@ import { Server, Socket } from 'socket.io';
 
 import { PrismaService } from 'src/prisma.service';
 import { MessagesService } from 'src/messages/messages.service';
+import { ReactionDto } from './dto/reaction.dto';
+import { SendMessageDto } from './dto/send-message.dto';
+import { TypingDto } from './dto/typing.dto';
 
 type JwtPayload = { sub: string; email: string };
 
+@UsePipes(new ValidationPipe({ whitelist: true }))
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   constructor(
     private readonly jwtService: JwtService,
@@ -55,10 +60,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('sendMessage')
-  async handleSendMessage(
-    client: Socket,
-    payload: { roomId: string; content: string },
-  ) {
+  async handleSendMessage(client: Socket, payload: SendMessageDto) {
     const user = client.data.user as JwtPayload;
     const message = await this.messagesService.create(
       payload.roomId,
@@ -69,7 +71,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('typing')
-  handleTyping(client: Socket, payload: { roomId: string; username?: string }) {
+  handleTyping(client: Socket, payload: TypingDto) {
     const user = client.data.user as JwtPayload;
     client.to(payload.roomId).emit('userTyping', {
       userId: user.sub,
@@ -78,10 +80,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('addReaction')
-  async handleAddReaction(
-    client: Socket,
-    payload: { messageId: string; emoji: string; roomId: string },
-  ) {
+  async handleAddReaction(client: Socket, payload: ReactionDto) {
     const user = client.data.user as JwtPayload;
     await this.prisma.reaction.upsert({
       where: {
@@ -110,10 +109,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('removeReaction')
-  async handleRemoveReaction(
-    client: Socket,
-    payload: { messageId: string; emoji: string; roomId: string },
-  ) {
+  async handleRemoveReaction(client: Socket, payload: ReactionDto) {
     const user = client.data.user as JwtPayload;
     await this.prisma.reaction.deleteMany({
       where: {

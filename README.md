@@ -1,31 +1,44 @@
-# shadcn/ui monorepo template
+# App Chat Nest
 
-This template is for creating a monorepo with shadcn/ui.
+## Setup
 
-## Usage
+Prerequis:
+- Node.js 20+
+- pnpm 10+
+- Docker Desktop demarre
 
-```bash
-pnpm dlx shadcn@latest init
-```
+A la racine du projet:
 
-## Adding components
+~~~bash
+make setup
+~~~
 
-To add components to your app, run the following command at the root of your `web` app:
+Cette commande:
+- cree apps/api/.env depuis apps/api/.env.example (si absent)
+- lance PostgreSQL avec Docker
+- initialise Prisma (generate + migrate + seed)
 
-```bash
-pnpm dlx shadcn@latest add button -c apps/web
-```
+## Lancer le projet
 
-This will place the ui components in the `packages/ui/src/components` directory.
+~~~bash
+pnpm dev
+~~~
 
-## Tailwind
+Ou:
 
-Your `tailwind.config.ts` and `globals.css` are already set up to use the components from the `ui` package.
+~~~bash
+make dev
+~~~
 
-## Using components
+## Compte de connexion seed
 
-To use the components in your app, import them from the `ui` package.
+~~~text
+email: admin@orus.com
+mot de passe: admin
+~~~
 
-```tsx
-import { Button } from "@workspace/ui/components/button"
-```
+## URLs
+
+- Web: http://localhost:3000
+- API: http://localhost:3001
+- Swagger: http://localhost:3001/api
