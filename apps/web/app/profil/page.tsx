@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
+import { authHeaders, getToken, getTokenPayload } from "@/lib/api"
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
@@ -23,18 +24,6 @@ type User = {
   color_custom: string | null
 }
 
-function getTokenPayload(): { sub: string } | null {
-  const token = localStorage.getItem("access_token")
-  if (!token) return null
-  try {
-    const part = token.split(".")[1]
-    if (!part) return null
-    return JSON.parse(atob(part)) as { sub: string }
-  } catch {
-    return null
-  }
-}
-
 export default function ProfilPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
@@ -45,15 +34,13 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token")
+    const token = getToken()
     if (!token) {
       router.push("/login")
       return
     }
 
-    fetch("http://localhost:3001/user/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch("http://localhost:3001/user/me", { headers: authHeaders() })
       .then((r) => r.json())
       .then((data: User) => {
         setUser(data)
@@ -78,10 +65,7 @@ export default function ProfilPage() {
     try {
       const res = await fetch(`http://localhost:3001/user/${payload.sub}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
+        headers: authHeaders(),
         body: JSON.stringify({ username, color_custom: color }),
       })
 
